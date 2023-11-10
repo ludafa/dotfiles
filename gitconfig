@@ -1,0 +1,22 @@
+[user]
+  name = ludafa 
+  email = ludafa@outlook.com
+[core]
+  editor = code --wait
+[alias]
+  cl = clone
+  ci = commit
+  co = checkout
+  br = branch
+  ps = push
+  pl = pull
+  st = status
+  a  = add
+[diff]
+  tool = vscode
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+[merge]
+  tool = vscode
+[mergetool "vscode"]
+  cmd = code --wait $MERGED
