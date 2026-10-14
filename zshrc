@@ -1,22 +1,19 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# Powerlevel10k instant prompt（需保持在 .zshrc 最顶部）
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
-# Path to your oh-my-zsh installation.
+# Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
+# load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="robbyrussell"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME=""  # 主题改由 Powerlevel10k 提供，见文件末尾
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -36,8 +33,11 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
-# Uncomment the following line to change how often to auto-update (in days).
+# Uncomment the following line to change the frequency the auto-updater is run (in days).
 # zstyle ':omz:update' frequency 13
+
+# Uncomment the following line to set how old an update must be before it's applied, manually or via the auto-updater (in days).
+# zstyle ':omz:update' cooldown 10
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
@@ -78,21 +78,13 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-# plugins=(git)
-plugins=(
-  git
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  # dotenv
-)
+plugins=(git gh)  # gh: GitHub CLI 补全
 
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
-
-export PATH="$HOME/go/bin/:$PATH"
 
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
@@ -101,44 +93,43 @@ export PATH="$HOME/go/bin/:$PATH"
 # if [[ -n $SSH_CONNECTION ]]; then
 #   export EDITOR='vim'
 # else
-#   export EDITOR='mvim'
+#   export EDITOR='nvim'
 # fi
 
 # Compilation flags
-# export ARCHFLAGS="-arch x86_64"
+# export ARCHFLAGS="-arch $(uname -m)"
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
+# Set personal aliases, overriding those provided by Oh My Zsh libs,
+# plugins, and themes. Aliases can be placed here, though Oh My Zsh
+# users are encouraged to define aliases within a top-level file in
+# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
+# - $ZSH_CUSTOM/aliases.zsh
+# - $ZSH_CUSTOM/macos.zsh
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# ---- 以下来自 dotfiles 仓库 ----
+export PATH="$HOME/go/bin:$PATH"
 
-# added by terraform -install-autocomplete
-autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /opt/homebrew/bin/terraform terraform
-
-# used for gh cli auto completion
-# see: https://cli.github.com/manual/gh_completion
-[[ -d ~/.oh-my-zsh/completions ]] || mkdir ~/.oh-my-zsh/completions
-gh completion -s zsh > ~/.oh-my-zsh/completions/_gh
-autoload -U compinit
-compinit -i
-
-# command output behavior - send output to terminal
+# 命令输出直接打到终端，不进分页器
 # see: https://superuser.com/questions/1698521/zsh-keep-all-command-outputs-on-terminal-screen
 export PAGER=""
 
-# Do not put commands in history if they begin with a SPACE
-setopt HIST_IGNORE_SPACE
+setopt HIST_IGNORE_SPACE   # 空格开头的命令不进历史
+setopt HIST_REDUCE_BLANKS  # 去掉命令里多余的空白再记入历史
 
-# Trim excessive whitespace from commands before adding to history
-setopt HIST_REDUCE_BLANKS
+# 目录 / 补全高亮颜色调成可读的
+_ls_colors=':ow=01;33'
+zstyle ":completion:*:default" list-colors "${(s.:.)_ls_colors}"
+LS_COLORS+=$_ls_colors
+
+if (( $+commands[terraform] )); then
+  autoload -U +X bashcompinit && bashcompinit
+  complete -o nospace -C "$(command -v terraform)" terraform
+fi
 
 alias src="source ~/.zshrc"
 alias ttt='cd ~/code/test'
@@ -155,5 +146,14 @@ alias rap='rush add -p'
 alias ru='rush update'
 alias rx='rushx'
 
-export PATH="$HOME/.local/share/fnm:$PATH"
-eval "`fnm env --use-on-cd`"
+eval "$(fnm env --use-on-cd --shell zsh)"
+
+# ---- zsh 插件（Homebrew 安装） ----
+source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+source <(fzf --zsh)           # Ctrl+R 搜历史，Ctrl+T 找文件，Alt+C 跳目录
+eval "$(zoxide init zsh)"     # z <关键词> 跳转常用目录
+
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh  # 必须放在最后

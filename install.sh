@@ -8,15 +8,9 @@ zshrc() {
   sh ~/.vim_runtime/install_awesome_vimrc.sh
 
   echo "==========================================================="
-  echo "             install zsh plugins                           "
+  echo "             install zsh theme & plugins (Homebrew)        "
   echo "-----------------------------------------------------------"
-  git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-  git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-  echo "==========================================================="
-  echo "             cloning powerlevel10k                         "
-  echo "-----------------------------------------------------------"
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+  brew install powerlevel10k zsh-autosuggestions zsh-syntax-highlighting fzf zoxide fnm
 
   echo "==========================================================="
   echo "             import zshrc                                  "
@@ -37,11 +31,6 @@ zshrc() {
   echo "             import git config                             "
   echo "-----------------------------------------------------------"
   cat ./gitconfig > ~/.gitconfig
-
-  echo "==========================================================="
-  echo "             installing fnm                                "
-  echo "-----------------------------------------------------------"
-  curl -fsSL https://fnm.vercel.app/install | bash
 }
 
 karabiner() {
@@ -62,12 +51,5 @@ karabiner() {
 }
 
 zshrc
-
-# make directly highlighting readable - needs to be after zshrc line
-echo "" >> ~/.zshrc
-echo "# remove ls and directory completion highlight color" >> ~/.zshrc
-echo "_ls_colors=':ow=01;33'" >> ~/.zshrc
-echo 'zstyle ":completion:*:default" list-colors "${(s.:.)_ls_colors}"' >> ~/.zshrc
-echo 'LS_COLORS+=$_ls_colors' >> ~/.zshrc
 
 karabiner
