@@ -44,6 +44,23 @@ zshrc() {
   curl -fsSL https://fnm.vercel.app/install | bash
 }
 
+karabiner() {
+  echo "==========================================================="
+  echo "             link karabiner-elements config                "
+  echo "-----------------------------------------------------------"
+  # link the whole directory: Karabiner rewrites karabiner.json on save, which breaks a file symlink
+  src="$(cd "$(dirname "$0")" && pwd)/karabiner"
+  dst="$HOME/.config/karabiner"
+  if [ -L "$dst" ]; then
+    rm "$dst"
+  elif [ -e "$dst" ]; then
+    mv "$dst" "$dst.bak.$(date +%Y%m%d%H%M%S)"
+  fi
+  mkdir -p "$HOME/.config"
+  ln -s "$src" "$dst"
+  launchctl kickstart -k "gui/$(id -u)/org.pqrs.service.agent.Karabiner-Console-User-Server" 2>/dev/null || true
+}
+
 zshrc
 
 # make directly highlighting readable - needs to be after zshrc line
@@ -52,3 +69,5 @@ echo "# remove ls and directory completion highlight color" >> ~/.zshrc
 echo "_ls_colors=':ow=01;33'" >> ~/.zshrc
 echo 'zstyle ":completion:*:default" list-colors "${(s.:.)_ls_colors}"' >> ~/.zshrc
 echo 'LS_COLORS+=$_ls_colors' >> ~/.zshrc
+
+karabiner
